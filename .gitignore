@@ -4,3 +4,7 @@
 
 # Executables
 dsp-sqlite
+
+# Database stuff
+dsp-sqlite.dSYM
+data.db
