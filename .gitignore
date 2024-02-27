@@ -1,0 +1,6 @@
+# Editors
+.vscode/
+.idea/
+
+# Executables
+dsp-sqlite
