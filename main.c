@@ -12,74 +12,10 @@ static int default_sqlite_callback(
 	const int col_count,
 	char **values,
 	char **col_names
-) {
-	for (int i = 0; i < col_count; ++i) {
-		char *val;
-		if (values[i] != NULL) {
-			val = values[i];
-		} else {
-			val = "NULL";
-		}
-		if (psafe_println("%s = %s", col_names[i], val)) {
-			return FAIL;
-		}
-	}
-	if (psafe_print("\n")) {
-		return FAIL;
-	}
-	return SUCCESS;
-}
-
-static int print_table(sqlite3 *db, const char *table) {
-	const char *selstr = "SELECT * from ";
-	const int max_query_len = 100;
-	const int query_len = strlen(table);
-
-	if (query_len > max_query_len) {
-		psafe_eprintln(
-			"print_table: Max query length exceeded (max: %d, actual: %d)",
-			query_len, max_query_len);
-		return FAIL;
-	}
-
-	const size_t query_size = strlen(selstr) + max_query_len + 1;
-	char query[query_size];
-	strcpy(query, selstr);
-
-	char* error_msg;
-
-	strncat(query, table, query_size);
-
-	if (psafe_println("%s contents:\n- - -", table)) {
-		return FAIL;
-	}
-
-	if (sqlite3_exec(db, query, default_sqlite_callback, NULL, &error_msg)) {
-		psafe_eprintln("print_table: Select was unsuccessful: %s", error_msg);
-		return FAIL;
-	}
-	return SUCCESS;
-}
-
-static int db_exec(sqlite3 *db, const char *query) {
-	char* error_msg;
-	if (sqlite3_exec(db, query, default_sqlite_callback, NULL, &error_msg)) {
-		psafe_eprintln("db_exec: Unsuccessful database operation: %s\n", error_msg);
-		return FAIL;
-	}
-	return SUCCESS;
-}
-
-static int print_all_tables(sqlite3 *db) {
-	if (psafe_println("\n# All tables #\n--------------\n")) {
-		return FAIL;
-	}
-	if (print_table(db, "PRODUCTS")) { return FAIL; }
-	if (print_table(db, "SUPPLIERS")) { return FAIL; }
-	if (print_table(db, "PRODUCTSUPPLIER")) { return FAIL; }
-	if (print_table(db, "ORDERS")) { return FAIL; }
-	return SUCCESS;
-}
+);
+static int print_table(sqlite3 *db, const char *table);
+static int db_exec(sqlite3 *db, const char *query);
+static int print_all_tables(sqlite3 *db);
 
 int main(void) {
 	sqlite3 *db;
@@ -222,4 +158,78 @@ int main(void) {
 	}
 
 	exit(EXIT_SUCCESS);
+}
+
+static int db_exec(sqlite3 *db, const char *query) {
+	char* error_msg;
+	if (sqlite3_exec(db, query, default_sqlite_callback, NULL, &error_msg)) {
+		psafe_eprintln("db_exec: Unsuccessful database operation: %s\n", error_msg);
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+static int default_sqlite_callback(
+	__attribute_maybe_unused__ void *data,
+	const int col_count,
+	char **values,
+	char **col_names
+) {
+	for (int i = 0; i < col_count; ++i) {
+		char *val;
+		if (values[i] != NULL) {
+			val = values[i];
+		} else {
+			val = "NULL";
+		}
+		if (psafe_println("%s = %s", col_names[i], val)) {
+			return FAIL;
+		}
+	}
+	if (psafe_print("\n")) {
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+static int print_table(sqlite3 *db, const char *table) {
+	const char *selstr = "SELECT * from ";
+	const int max_query_len = 100;
+	const int query_len = strlen(table);
+
+	if (query_len > max_query_len) {
+		psafe_eprintln(
+			"print_table: Max query length exceeded (max: %d, actual: %d)",
+			query_len, max_query_len);
+		return FAIL;
+	}
+
+	const size_t query_size = strlen(selstr) + max_query_len + 1;
+	char query[query_size];
+	strcpy(query, selstr);
+
+	char* error_msg;
+
+	strncat(query, table, query_size);
+
+	if (psafe_println("%s contents:\n- - -", table)) {
+		return FAIL;
+	}
+
+	if (sqlite3_exec(db, query, default_sqlite_callback, NULL, &error_msg)) {
+		psafe_eprintln("print_table: Select was unsuccessful: %s", error_msg);
+		return FAIL;
+	}
+	return SUCCESS;
+}
+
+static int print_all_tables(sqlite3 *db) {
+	if (psafe_println("\n# All tables #\n--------------\n")) {
+		return FAIL;
+	}
+	if (print_table(db, "PRODUCTS")) { return FAIL; }
+	if (print_table(db, "SUPPLIERS")) { return FAIL; }
+	if (print_table(db, "PRODUCTSUPPLIER")) { return FAIL; }
+	if (print_table(db, "ORDERS")) { return FAIL; }
+	return SUCCESS;
 }
