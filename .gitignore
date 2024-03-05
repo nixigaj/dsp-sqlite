@@ -5,6 +5,12 @@
 # Executables
 dsp-sqlite
 
-# Database stuff
-dsp-sqlite.dSYM
-data.db
+# Databases
+*.db
+
+# Etc
+*.dSYM
+*.out
+*.out.*
+vgcore.*
+*.o

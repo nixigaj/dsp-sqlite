@@ -1,11 +1,26 @@
 .PHONY: all run clean
 
-all:
-	@gcc -g *.c -o dsp-sqlite -lsqlite3
+PROGRAM_NAME = dsp-sqlite
+SOURCES_DSP_SQLITE = $(wildcard *.c)
+SOURCES_LIB_PSAFE = $(wildcard psafe/*.c)
+SOURCES = $(SOURCES_LIB_PSAFE) $(SOURCES_DSP_SQLITE)
 
-run:
-	@rm data.db
-	@./dsp-sqlite
+CC = gcc
+LINK_LIBS = -lsqlite3
+CFLAGS = -g
+
+$(PROGRAM_NAME): $(SOURCES)
+	@$(CC) $(CFLAGS) $^ -o $(PROGRAM_NAME) $(LINK_LIBS)
+
+all: $(PROGRAM_NAME)
+
+run: $(PROGRAM_NAME)
+	@rm -rf *.db
+	@./$(PROGRAM_NAME)
+
+memtest: $(PROGRAM_NAME)
+	@rm -rf *.db
+	@valgrind ./$(PROGRAM_NAME)
 
 clean:
-	@rm -rf dsp-sqlite 
+	@rm -rf $(PROGRAM_NAME) *.db *.o *.out *.out.* vgcore.*
