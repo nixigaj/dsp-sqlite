@@ -7,7 +7,7 @@
 #define SUCCESS 0
 #define FAIL 1
 
-static int default_sqlite_callback(
+static int print_sqlite_callback(
 	__attribute_maybe_unused__ void *data,
 	const int col_count,
 	char **values,
@@ -162,14 +162,14 @@ int main(void) {
 
 static int db_exec(sqlite3 *db, const char *query) {
 	char* error_msg;
-	if (sqlite3_exec(db, query, default_sqlite_callback, NULL, &error_msg)) {
+	if (sqlite3_exec(db, query, print_sqlite_callback, NULL, &error_msg)) {
 		psafe_eprintln("db_exec: Unsuccessful database operation: %s\n", error_msg);
 		return FAIL;
 	}
 	return SUCCESS;
 }
 
-static int default_sqlite_callback(
+static int print_sqlite_callback(
 	__attribute_maybe_unused__ void *data,
 	const int col_count,
 	char **values,
@@ -216,7 +216,7 @@ static int print_table(sqlite3 *db, const char *table) {
 		return FAIL;
 	}
 
-	if (sqlite3_exec(db, query, default_sqlite_callback, NULL, &error_msg)) {
+	if (sqlite3_exec(db, query, print_sqlite_callback, NULL, &error_msg)) {
 		psafe_eprintln("print_table: Select was unsuccessful: %s", error_msg);
 		return FAIL;
 	}
